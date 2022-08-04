@@ -65,6 +65,10 @@ namespace TelegramRpBot.Services
                                 player.Points -= (ability.Level - player.Dexterity - 1) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Dexterity - 1) * 4} очков");
                             }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
+                            }
                         }
                     }
                     else if (ability.Stat == "ИН")
@@ -108,6 +112,10 @@ namespace TelegramRpBot.Services
                                 player.Points -= (ability.Level - player.Inteligence - 1) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Inteligence - 1) * 4} очков");
                             }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
+                            }
                         }
                     }
                     else if (ability.Stat == "ЖВ")
@@ -150,6 +158,10 @@ namespace TelegramRpBot.Services
                                 ability.Level += 1;
                                 player.Points -= (ability.Level - player.Health - 1) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Health - 1) * 4} очков");
+                            }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
                             }
                         }
                     }
@@ -197,6 +209,10 @@ namespace TelegramRpBot.Services
                                 player.Points -= (ability.Level - player.Dexterity) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Dexterity) * 4} очков");
                             }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
+                            }
                         }
                     }
                     else if (ability.Stat == "ИН")
@@ -240,6 +256,10 @@ namespace TelegramRpBot.Services
                                 player.Points -= (ability.Level - player.Inteligence) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Inteligence) * 4} очков");
                             }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
+                            }
                         }
                     }
                     else if (ability.Stat == "ЖВ")
@@ -282,6 +302,10 @@ namespace TelegramRpBot.Services
                                 ability.Level += 1;
                                 player.Points -= (ability.Level - player.Health) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Health) * 4} очков");
+                            }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
                             }
                         }
                     }
@@ -329,6 +353,10 @@ namespace TelegramRpBot.Services
                                 player.Points -= (ability.Level - player.Dexterity + 1) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Dexterity + 1) * 4} очков");
                             }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
+                            }
                         }
                     }
                     else if (ability.Stat == "ИН")
@@ -372,6 +400,10 @@ namespace TelegramRpBot.Services
                                 player.Points -= (ability.Level - player.Inteligence + 1) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Inteligence + 1) * 4} очков");
                             }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
+                            }
                         }
                     }
                     else if (ability.Stat == "ЖВ")
@@ -414,6 +446,10 @@ namespace TelegramRpBot.Services
                                 ability.Level += 1;
                                 player.Points -= (ability.Level - player.Health + 1) * 4;
                                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Умение {ability.Name} улучшено до {ability.Level} за {(ability.Level - player.Health + 1) * 4} очков");
+                            }
+                            else
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
                             }
                         }
                     }
