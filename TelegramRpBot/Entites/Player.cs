@@ -9,8 +9,10 @@ namespace TelegramRpBot.Entites
     public class Player
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public long UserId { get; set; }
         public string CharacterName { get; set; }
+        public string Race { get; set; }
+        public string RaceSpecial { get; set; }
         public int Strength { get; set; }
         public int Dexterity { get; set; }
         public int Inteligence { get; set; }
@@ -18,10 +20,7 @@ namespace TelegramRpBot.Entites
         public int HealthPoints { get; set; }
         public int Fatigue { get; set; }
         public int Points { get; set; }
-        public string Race { get; set; }
-        public string RaceSpecial { get; set; }
-        public int InventoryId { get; set; }
-        public int ActiveId { get; set; }
-        
+        public int Money { get; set; }
+        public int InputPlayer { get; set; }
     }
 }

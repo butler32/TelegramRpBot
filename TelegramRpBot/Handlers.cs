@@ -22,7 +22,7 @@ namespace TelegramRpBot
     public class Handlers
     {
         static Repository<Player> playerRepository = new Repository<Player>();
-        static Repository<Accessories> accessoriesRepository = new Repository<Accessories>();
+        static Repository<Accessory> accessoriesRepository = new Repository<Accessory>();
         static Repository<Active> activeRepository = new Repository<Active>();
         static Repository<Armor> armorRepository = new Repository<Armor>();
         static Repository<Inventory> inventoryRepository = new Repository<Inventory>();
@@ -33,7 +33,6 @@ namespace TelegramRpBot
         static Repository<Advantage> advantageRepsitory = new Repository<Advantage>();
         static Repository<Disadvantage> disadvantageRepository = new Repository<Disadvantage>();
 
-        public static PlayerInput playerInput = 0;
 
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
@@ -85,15 +84,68 @@ namespace TelegramRpBot
 
                 switch (messageSplit[0].ToLower())
                 {
-                    case "приобрести":
+                    case "/addmob":
                         {
-                            await AddvantegesService.GetAdvantageOrDisadvantage(botClient, message);
+                            player.InputPlayer = (int)PlayerInput.Mob;
+                            playerRepository.Update(player);
+                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Напишите через пробел имя, сп, защиту, тип защиты, атаку");
+                            break;
+                        }
+
+                    case "получить":
+                        {
+                            await ParseService.AdvantageParse(botClient, message);
+                            break;
+                        }
+
+                    case "улучшить":
+                        {
+                            player.InputPlayer = (int)PlayerInput.Ability;
+                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Введите название умения, когда закончите напишите вернуться");
+                            break;
+                        }
+
+                    case "проверить":
+                        {
+                            await AbilityService.AbilityCheck(botClient, message);
+                            break;
+                        }
+
+                    case "вернуться":
+                        {
+                            player.InputPlayer = (int)PlayerInput.NonInput;
+                            await CharacterCreationService.CreationMenu(botClient, message, player);
+                            break;
+                        }
+
+                    case "создать":
+                        {
+
+                            break;
+                        }
+
+                    case "/roll":
+                        {
+                            Random random = new Random();
+
+                            int num1;
+                            int num2;
+                            int num3;
+
+                            num1 = random.Next(1, 6);
+                            num2 = random.Next(1, 6);
+                            num3 = random.Next(1, 6);
+
+                            if (messageSplit.Length == 1)
+                            {
+                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: $"Выпало {num1} + {num2} + {num3} = {num1 + num2 + num3}");
+                            }
                             break;
                         }
 
                     default:
                         {
-                            switch (playerInput)
+                            switch ((PlayerInput)player.InputPlayer)
                             {
                                 case PlayerInput.NonInput:
                                     {
@@ -103,7 +155,8 @@ namespace TelegramRpBot
                                 case PlayerInput.RaceInput:
                                     {
                                         player.Race = message.Text;
-                                        playerInput = PlayerInput.RaceSpecial;
+                                        player.InputPlayer = (int)PlayerInput.RaceSpecial;
+                                        playerRepository.Update(player);
                                         await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
                                             text: "Напишите особенности расы через запятую. Они ни на что не влияют, но можно их отыгрывать (если нету пиши нету)");
                                         break;
@@ -112,7 +165,8 @@ namespace TelegramRpBot
                                 case PlayerInput.RaceSpecial:
                                     {
                                         player.RaceSpecial = message.Text;
-                                        playerInput = PlayerInput.NonInput;
+                                        player.InputPlayer = (int)PlayerInput.NonInput;
+                                        playerRepository.Update(player);
                                         await CharacterCreationService.CreationMenu(botClient, message, player);
                                         break;
                                     }
@@ -120,8 +174,33 @@ namespace TelegramRpBot
                                 case PlayerInput.CharacterName:
                                     {
                                         player.CharacterName = message.Text;
-                                        playerInput = PlayerInput.NonInput;
+                                        player.InputPlayer = (int)PlayerInput.NonInput;
+                                        playerRepository.Update(player);
                                         await CharacterCreationService.CreationMenu(botClient, message, player);
+                                        break;
+                                    }
+
+                                case PlayerInput.Advantage:
+                                    {
+                                        await AddvantegesService.GetAdvantage(botClient, message);
+                                        break;
+                                    }
+
+                                case PlayerInput.Disadvantage:
+                                    {
+                                        await AddvantegesService.GetGisadvantage(botClient, message);
+                                        break;
+                                    }
+
+                                case PlayerInput.Ability:
+                                    {
+                                        await AbilityService.AbilityUpgrade(botClient, message);
+                                        break;
+                                    }
+
+                                case PlayerInput.Mob:
+                                    {
+                                        await MobService.AddMob(botClient, message);
                                         break;
                                     }
                             }
@@ -132,45 +211,7 @@ namespace TelegramRpBot
             }
             else
             {
-                Advantage advantage = advantageRepsitory.Add(new Advantage
-                {
-                    PlayerId = (int)message.From.Id,
-                });
-
-                Disadvantage disadvantage = disadvantageRepository.Add(new Disadvantage
-                {
-                    PlayerId = (int)message.From.Id,
-                });
-
-                Inventory inventory = inventoryRepository.Add(new Inventory
-                {
-                    PlayerId = (int)message.From.Id,
-                });
-
-                Active active = activeRepository.Add(new Active
-                {
-                    PlayerId = (int)message.From.Id,
-                    MainHand = "Правая",
-                });
-
-                Player player = playerRepository.Add(new Player
-                {
-                    UserId = (int)message.From.Id,
-                    CharacterName = "Нету",
-                    Race = "Нету",
-                    RaceSpecial = "Нету",
-                    Strength = 10,
-                    Dexterity = 10,
-                    Inteligence = 10,
-                    Health = 10,
-                    HealthPoints = 10,
-                    Fatigue = 10,
-                    Points = 75,
-                });
-
-                await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                                                            text: $"Персонаж создан. Очков осталось: {player.Points}");
-                await CharacterCreationService.CreationMenu(botClient, message, player);
+                await CharacterCreationService.AddNewCharacter(botClient, message);
             }
         }
 
@@ -192,7 +233,5 @@ namespace TelegramRpBot
             Console.WriteLine($"Unknown update type: {update.Type}");
             return Task.CompletedTask;
         }
-        
-        
     }
 }

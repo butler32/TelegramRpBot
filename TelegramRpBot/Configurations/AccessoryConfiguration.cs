@@ -9,9 +9,9 @@ using TelegramRpBot.Entites;
 
 namespace TelegramRpBot.Configurations
 {
-    public class AccessoiersConfiguration : IEntityTypeConfiguration<Accessories>
+    public class AccessoryConfiguration : IEntityTypeConfiguration<Accessory>
     {
-        public void Configure(EntityTypeBuilder<Accessories> builder)
+        public void Configure(EntityTypeBuilder<Accessory> builder)
         {
             builder
                 .HasKey(p => p.Id);

@@ -12,7 +12,7 @@ namespace TelegramRpBot
     public class BotDbContext : DbContext
     {
         public DbSet<Player> Players { get; set; }
-        public DbSet<Accessories> Accessoriess { get; set; }
+        public DbSet<Accessory> Accessoriess { get; set; }
         public DbSet<Active> Actives { get; set; }
         public DbSet<Armor> Armors { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
@@ -22,6 +22,7 @@ namespace TelegramRpBot
         public DbSet<Monster> Monsters { get; set; }
         public DbSet<Advantage> Advantages { get; set; }
         public DbSet<Disadvantage> Disadvantages { get; set; }
+        public DbSet<Ability> Abilities { get; set; }
 
         public BotDbContext(DbContextOptions<BotDbContext> options)
             : base(options)
@@ -31,7 +32,7 @@ namespace TelegramRpBot
         {
             new MonsterConfiguration().Configure(modelBuilder.Entity<Monster>());
             new PlayerConfiguration().Configure(modelBuilder.Entity<Player>());
-            new AccessoiersConfiguration().Configure(modelBuilder.Entity<Accessories>());
+            new AccessoryConfiguration().Configure(modelBuilder.Entity<Accessory>());
             new ActiveConfiguration().Configure(modelBuilder.Entity<Active>());
             new ArmorConfiguration().Configure(modelBuilder.Entity<Armor>());
             new InventoryConfiguration().Configure(modelBuilder.Entity<Inventory>());
@@ -40,6 +41,7 @@ namespace TelegramRpBot
             new WeaponConfiguration().Configure(modelBuilder.Entity<Weapon>());
             new AdvantageConfiguration().Configure(modelBuilder.Entity<Advantage>());
             new DisadvantageConfiguration().Configure(modelBuilder.Entity<Disadvantage>());
+            new AbilityConfiguration().Configure(modelBuilder.Entity<Ability>());
         }
     }
 }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramRpBot.Entites;
+using TelegramRpBot.Enums;
+using TelegramRpBot.Specifications;
 
 namespace TelegramRpBot.Services
 {
@@ -15,933 +17,201 @@ namespace TelegramRpBot.Services
         static Repository<Advantage> advantageRepository = new Repository<Advantage>();
         static Repository<Disadvantage> disadvantageRepository = new Repository<Disadvantage>();
 
-        public static async Task GetAdvantageOrDisadvantage(ITelegramBotClient botClient, Message message)
+
+        public static async Task GetAdvantage(ITelegramBotClient botClient, Message message)
         {
-            Player player = playerRepository.List().FirstOrDefault(i => i.UserId == message.From.Id);
-            Advantage advantage = advantageRepository.List().FirstOrDefault(i => i.PlayerId == message.From.Id);
-            Disadvantage disadvantage = disadvantageRepository.List().FirstOrDefault(i => i.PlayerId == message.From.Id);
-            string[] splitMessage = message.Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            Player player = playerRepository.Get(new PlayerByIdSpecification(message.From.Id));
 
-            switch(splitMessage[1].ToLower())
+            Advantage advantage = advantageRepository.Get(new AdvantageByNameSpecification(message.Text, message.From.Id));
+
+            if (advantage == null)
             {
-                case "бесстрашие":
+                await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Нормально пиши");
+            }
+            else if (advantage.Name == "Гибкость")
+            {
+                if (advantage.Level == 0)
+                {
+                    if (player.Points >= 5)
                     {
-                        if(player.Points >= 2)
-                        {
-                            advantage.Fearless += 1;
-                            player.Points -= 2;
-                            await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"Бесстрашие получено");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                        }
-                        break;
+                        advantage.Level += 1;
+                        player.Points -= 5;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
                     }
-                case "гибкость":
+                    else
                     {
-                        if (advantage.Flexibility == 0)
-                        {
-                            if(player.Points >= 5)
-                            {
-                                advantage.Flexibility += 1;
-                                player.Points -= 5;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Гибкость первого уровня получена");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else if(advantage.Flexibility == 1)
-                        {
-                            if (player.Points >= 15)
-                            {
-                                advantage.Flexibility += 1;
-                                player.Points -= 10;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Гибкость второго уровня получена");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя гибкость и так максимальная");
-                        }
-
-                        break;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
                     }
-
-                case "обоюдорукость":
-                    {
-                        if (advantage.DoubleHand == 0)
-                        {
-                            if (player.Points >= 5)
-                            {
-                                advantage.DoubleHand += 1;
-                                player.Points -= 5;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Обоюдорукость получена");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так есть обоюдорукость");
-                        }
-                        break;
-                    }
-                case "прыгун":
-                    {
-                        if (advantage.Jumper == 0)
-                        {
-                            if (player.Points >= 100)
-                            {
-                                advantage.Jumper += 1;
-                                player.Points -= 100;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Прыгун получен");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты уже и так прыгун");
-                        }
-                        break;
-                    }
-                case "сорвиголова":
-                    {
-                        if (advantage.Daredevil == 0)
-                        {
-                            if (player.Points >= 15)
-                            {
-                                advantage.Daredevil += 1;
-                                player.Points -= 15;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Сорвиголова получен");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты уже и так сорвиголова");
-                        }
-                        break;
-                    }
-                case "удача":
-                    {
-                        if (advantage.Luck == 0)
-                        {
-                            if (player.Points >= 15)
-                            {
-                                advantage.Luck += 1;
-                                player.Points -= 15;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Удача получена");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        break;
-                    }
-                case "эмпатия":
-                    {
-                        if (advantage.Empathy == 0)
-                        {
-                            if (player.Points >= 15)
-                            {
-                                advantage.Empathy += 1;
-                                player.Points -= 15;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Эмпатия получена");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так есть эмпатия");
-                        }
-                        break;
-                    }
-                case "вспыльчивость":
-                    {
-                        if (disadvantage.HotTemper == 0)
-                        {
-                            disadvantage.HotTemper += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Вспыльчивость получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже вспыльчив");
-                        }
-                        break;
-                    }
-                case "жадность":
-                    {
-                        if (disadvantage.Greed == 0)
-                        {
-                            disadvantage.Greed += 1;
-                            player.Points += 15;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Жадность получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "ты и так уже жадный");
-                        }
-                        break;
-                    }
-                case "заблуждения":
-                    {
-                        if (disadvantage.Delusion < 3)
-                        {
-                            disadvantage.Delusion += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Заблуждения получены");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже достаточно заблуждаешься");
-                        }
-                        break;
-                    }
-                case "зависть":
-                    {
-                        if (disadvantage.Envy == 0)
-                        {
-                            disadvantage.Envy += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Зависть получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже завистлив");
-                        }
-                        break;
-                    }
-                case "законопослушный":
-                    {
-                        if (disadvantage.LawAbiding == 0)
-                        {
-                            disadvantage.LawAbiding += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Законопослушность приобретена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже законопослушный");
-                        }
-                        break;
-                    }
-                case "импульсивность":
-                    {
-                        if (disadvantage.Impulsive == 0)
-                        {
-                            disadvantage.Impulsive += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Импульсивность приобретена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже импульсивный");
-                        }
-                        break;
-                    }
-                case "клятва":
-                    {
-                        if (disadvantage.Oath < 3)
-                        {
-                            disadvantage.Oath += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Клятва приобретена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже столько клятв отдал, хватит");
-                        }
-                        break;
-                    }
-                case "кровожадность":
-                    {
-                        if (disadvantage.BloodLust == 0)
-                        {
-                            disadvantage.BloodLust += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Кровожадность получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже кровожадный");
-                        }
-                        break;
-                    }
-                case "любопытство":
-                    {
-                        if (disadvantage.Curiosity == 0)
-                        {
-                            disadvantage.Curiosity += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Любопытство приобретено");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже любопытный");
-                        }
-                        break;
-                    }
-                case "невезение":
-                    {
-                        if (disadvantage.BadLuck == 0)
-                        {
-                            disadvantage.BadLuck += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Невезение получено");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже невезучий");
-                        }
-                        break;
-                    }
-                case "нетерпимость":
-                    {
-                        if (disadvantage.Intolerance == 0)
-                        {
-                            disadvantage.Intolerance += 1;
-                            player.Points += 1;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Нетерпимость получена");
-                        }
-                        else if (disadvantage.Intolerance == 1)
-                        {
-                            disadvantage.Intolerance += 1;
-                            player.Points += 4;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Нетерпимость получена");
-                        }
-                        else if (disadvantage.Intolerance == 2)
-                        {
-                            disadvantage.Intolerance += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Нетерпимость получена ");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже достаточно нетерпимый");
-                        }
-                        break;
-                    }
-                case "пацифизм":
-                    {
-                        if (disadvantage.Pacifism < 2)
-                        {
-                            disadvantage.Pacifism += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Пацифизм получен");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже пацифист");
-                        }
-                        break;
-                    }
-                case "правдивость":
-                    {
-                        if (disadvantage.Truthfullness == 0)
-                        {
-                            disadvantage.Truthfullness += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Правдивость получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "На земле и так уже нету более правдивого человека, чем ты, куда больше");
-                        }
-                        break;
-                    }
-                case "прожорливость":
-                    {
-                        if (disadvantage.Gluttony == 0)
-                        {
-                            disadvantage.Gluttony += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Прожорливость получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже прожорлив");
-                        }
-                        break;
-                    }
-                case "развратность":
-                    {
-                        if (disadvantage.Depravity == 0)
-                        {
-                            disadvantage.Depravity += 1;
-                            player.Points += 15;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Развратность получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Извращенец блять");
-                        }
-                        break;
-                    }
-                case "самоуверенность":
-                    {
-                        if (disadvantage.SelfConfidence == 0)
-                        {
-                            disadvantage.SelfConfidence += 1;
-                            player.Points += 5;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Самоуверенность получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже самоуверенный");
-                        }
-                        break;
-                    }
-                case "тугоухость":
-                    {
-                        if (disadvantage.BadHearing == 0)
-                        {
-                            disadvantage.BadHearing += 1;
-                            player.Points += 10;
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Тугоухость получена");
-                        }
-                        else
-                        {
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так глухой");
-                        }
-                        break;
-                    }
-                case "боевые":
-                    {
-                        if (splitMessage[2].ToLower() == "рефлексы")
-                        {
-                            if (advantage.BattleReflex == 0)
-                            {
-                                if (player.Points >= 15)
-                                {
-                                    advantage.BattleReflex += 1;
-                                    player.Points -= 15;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Боевые рефлексы получены");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так уже есть боевые рефлексы");
-                            }
-                        }
-                        break;
-                    }
-                case "высокий":
-                    {
-                        if (splitMessage[2].ToLower() == "болевой" && splitMessage[3].ToLower() == "порог")
-                        {
-                            if (advantage.PainThreshold == 0)
-                            {
-                                if (player.Points >= 10)
-                                {
-                                    advantage.PainThreshold += 1;
-                                    player.Points -= 10;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Высокий болевой порог получен");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так высокий болевой порог");
-                            }
-                        }
-                        break;
-                    }
-                case "мягкое":
-                    {
-                        if (splitMessage[2].ToLower() == "падение")
-                        {
-                            if (advantage.SoftFall == 0)
-                            {
-                                if (player.Points >= 10)
-                                {
-                                    advantage.SoftFall += 1;
-                                    player.Points -= 10;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Мягкое падение получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так мягко падаешь");
-                            }
-                        }
-                        break;
-                    }
-                case "ночное":
-                    {
-                        if (splitMessage[2].ToLower() == "видение")
-                        {
-                            if (advantage.NightVision < 9)
-                            {
-                                if (player.Points >= 1)
-                                {
-                                    advantage.NightVision += 1;
-                                    player.Points -= 1;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ночное зрение получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже ахуеть видишь");
-                            }
-                        }
-                        break;
-                    }
-                case "обострённый":
-                    {
-                        if (splitMessage[2].ToLower() == "слух")
-                        {
-                            if (player.Points >= 2)
-                            {
-                                advantage.AcuteHearing += 1;
-                                player.Points -= 2;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Обострённый слух получен");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "вкус")
-                        {
-                            if (player.Points >= 2)
-                            {
-                                advantage.AcuteTaste += 1;
-                                player.Points -= 2;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Обострённый вкус и обаяние получены");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "осязание")
-                        {
-                            if (player.Points >= 2)
-                            {
-                                advantage.AcuteSenseOfTouch += 1;
-                                player.Points -= 2;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Обострённое осязание получено");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "зрение")
-                        {
-                            if (player.Points >= 2)
-                            {
-                                advantage.AcuteVision += 1;
-                                player.Points -= 2;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Обострённое зрение получено");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        break;
-                    }
-                case "полная":
-                    {
-                        if (splitMessage[2].ToLower() == "устойчивость")
-                        {
-                            if (advantage.FullStability == 0)
-                            {
-                                if (player.Points >= 15)
-                                {
-                                    advantage.FullStability += 1;
-                                    player.Points -= 15;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Полная устойчивость получена");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так уже полностью устойчивый");
-                            }
-                        }
-                        break;
-                    }
-                case "понимание":
-                    {
-                        if (splitMessage[2].ToLower() == "животных")
-                        {
-                            if (advantage.UnderstandingAnimals == 0)
-                            {
-                                if (player.Points >= 5)
-                                {
-                                    advantage.UnderstandingAnimals += 1;
-                                    player.Points -= 5;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Понимание животных получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так как животное");
-                            }
-                        }
-                        break;
-                    }
-                case "талант":
-                    {
-                        if (splitMessage[2].ToLower() == "к" && splitMessage[3].ToLower() == "языкам")
-                        {
-                            if (advantage.LanguageTalant == 0)
-                            {
-                                if (player.Points >= 10)
-                                {
-                                    advantage.LanguageTalant += 1;
-                                    player.Points -= 10;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Талант к языкам получен");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так талант");
-                            }
-                        }
-                        break;
-                    }
-                case "трудно":
-                    {
-                        if (splitMessage[2].ToLower() == "убить")
-                        {
-                            if (player.Points >= 2)
-                            {
-                                advantage.HardToKill += 1;
-                                player.Points -= 2;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Теперь вас сложнее убить");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                            }
-                        }
-                        break;
-                    }
-                case "увеличенное":
-                    {
-                        if (splitMessage[2].ToLower() == "блокирование")
-                        {
-                            if (advantage.MoreDeffence == 0)
-                            {
-                                if (player.Points >= 5)
-                                {
-                                    advantage.MoreDeffence += 1;
-                                    player.Points -= 5;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Увеличенное блокирование получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так увеличенно блокируешь");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "уклонение")
-                        {
-                            if (advantage.MoreDodge == 0)
-                            {
-                                if (player.Points >= 15)
-                                {
-                                    advantage.MoreDodge += 1;
-                                    player.Points -= 15;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Увеличенное уклонение получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так увеличенно уклоняешься");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "парирование")
-                        {
-                            if (advantage.MoreParry == 0)
-                            {
-                                if (player.Points >= 10)
-                                {
-                                    advantage.MoreParry += 1;
-                                    player.Points -= 10;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Увеличенное парирование получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так увеличенно парируешь");
-                            }
-                        }
-                        break;
-                    }
-                case "крутая":
-                    {
-                        if (splitMessage[2].ToLower() == "удача")
-                        {
-                            if (advantage.Luck == 1)
-                            {
-                                if (player.Points >= 15)
-                                {
-                                    advantage.Luck += 1;
-                                    player.Points -= 15;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Крутая удача получена");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                        }
-                        break;
-                    }
-                case "ахуеть":
-                    {
-                        if (splitMessage[2].ToLower() == "какая" && splitMessage[3].ToLower() == "крутая" && splitMessage[4].ToLower() == "удача")
-                        {
-                            if (advantage.Luck == 2)
-                            {
-                                if (player.Points >= 30)
-                                {
-                                    advantage.Luck += 1;
-                                    player.Points -= 30;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ахуеть какая крутая удача получена");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты максимально удачлив, пойди купи лотерейный билет");
-                            }
-                        }
-                        break;
-                    }
-                case "чувство":
-                    {
-                        if (splitMessage[2].ToLower() == "опасности")
-                        {
-                            if (advantage.DangerSence == 0)
-                            {
-                                if (player.Points >= 15)
-                                {
-                                    advantage.DangerSence += 1;
-                                    player.Points -= 15;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Чувство опасности получено");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Ты и так чувствуешь опасность");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "долга")
-                        {
-                            if (disadvantage.SenseOfDuty == 0)
-                            {
-                                disadvantage.SenseOfDuty += 1;
-                                player.Points += 2;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Чувство долга получено");
-                            }
-                            else if (disadvantage.SenseOfDuty == 1)
-                            {
-                                disadvantage.SenseOfDuty += 1;
-                                player.Points += 3;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Чувство долга получено");
-                            }
-                            else if (disadvantage.SenseOfDuty < 5)
-                            {
-                                disadvantage.SenseOfDuty += 1;
-                                player.Points += 5;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Чувство долга получено");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Кому ты ещё не должен?");
-                            }
-                        }
-                        break;
-                    }
-                case "кодекс":
-                    {
-                        if (splitMessage[2].ToLower() == "чести")
-                        {
-                            if (disadvantage.CodeOfHonor < 3)
-                            {
-                                disadvantage.CodeOfHonor += 1;
-                                player.Points += 5;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Кодекс чести получен");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так слишком много чести");
-                            }
-                        }
-                        break;
-                    }
-                case "навязчивая":
-                    {
-                        if (splitMessage[2].ToLower() == "идея")
-                        {
-                            if (disadvantage.Obsession < 2)
-                            {
-                                disadvantage.Obsession += 1;
-                                player.Points += 5;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Навязчивая идея получена");
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так слишком много идей");
-                            }
-                        }
-                        break;
-                    }
-                case "слабое":
-                    {
-                        if (splitMessage[2].ToLower() == "зрение")
-                        {
-                            if (disadvantage.BadVision == 0)
-                            {
-                                disadvantage.BadVision += 1;
-                                player.Points += 25;
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Слабое зрение получено");
-                            }
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так зрение -20");
-                        }
-                        break;
-                    }
-                case "острые":
-                    {
-                        if (splitMessage[2].ToLower() == "когти")
-                        {
-                            if (advantage.Claws == 0)
-                            {
-                                if (player.Points >= 5)
-                                {
-                                    advantage.Claws += 1;
-                                    player.Points -= 5;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Острые когти получены");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так отсрые когти");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "зубы")
-                        {
-                            if (advantage.SharpTeeth == 0)
-                            {
-                                if (player.Points >= 1)
-                                {
-                                    advantage.SharpTeeth += 1;
-                                    player.Points -= 1;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Острые зубы получены");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так острые зубы");
-                            }
-                        }
-                        else if (splitMessage[2].ToLower() == "клыки")
-                        {
-                            if (advantage.Fangs == 0)
-                            {
-                                if (player.Points >= 2)
-                                {
-                                    advantage.Fangs += 1;
-                                    player.Points -= 2;
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Острые клыки получены");
-                                }
-                                else
-                                {
-                                    await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Не хватает очков");
-                                }
-                            }
-                            else
-                            {
-                                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "У тебя и так острые клыки");
-                            }
-                        }
-                        break;
-                    }
-
                 }
+                else if (advantage.Level == 1)
+                {
+                    if (player.Points >= 10)
+                    {
+                        advantage.Level += 1;
+                        player.Points -= 10;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
+                    }
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} максимального уровня");
+                }
+            }
+            else if (advantage.Name == "Сопротивлене болезням")
+            {
+                if (advantage.Level == 0)
+                {
+                    if (player.Points >= 3)
+                    {
+                        advantage.Level += 1;
+                        player.Points -= 3;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
+                    }
+                }
+                else if (advantage.Level == 1)
+                {
+                    if (player.Points >= 2)
+                    {
+                        advantage.Level += 1;
+                        player.Points -= 2;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
+                    }
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} максимального уровня");
+                }
+            }
+            else if (advantage.Name == "Удача")
+            {
+                if (advantage.Level == 0)
+                {
+                    if (player.Points >= 15)
+                    {
+                        advantage.Level += 1;
+                        player.Points -= 15;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
+                    }
+                }
+                else if (advantage.Level == 1)
+                {
+                    if (player.Points >= 15)
+                    {
+                        advantage.Level += 1;
+                        player.Points -= 15;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
+                    }
+                }
+                else if (advantage.Level == 2)
+                {
+                    if (player.Points >= 30)
+                    {
+                        advantage.Level += 1;
+                        player.Points -= 30;
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков");
+                    }
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} максимального уровня");
+                }
+            }
+            else if (player.Points >= advantage.Price && advantage.Level < advantage.MaxLevel)
+            {
+                advantage.Level += 1;
+                player.Points -= advantage.Price;
+                await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{advantage.Name} получена");
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Не хватает очков или достигнут максимальный уровень");
+            }
 
-            advantageRepository.Update(advantage);
-            disadvantageRepository.Update(disadvantage);
-            playerRepository.Update(player);
+            if (advantage != null)
+            {
+                advantageRepository.Update(advantage);
+                playerRepository.Update(player);
+            }
         }
+
+        public static async Task GetGisadvantage(ITelegramBotClient botClient, Message message)
+        {
+            Player player = playerRepository.Get(new PlayerByIdSpecification(message.From.Id));
+
+            Disadvantage disadvantage = disadvantageRepository.Get(new DIsadvantageByNameSpecification(message.Text, message.From.Id));
+
+            if (disadvantage == null)
+            {
+                await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Нормально пиши");
+            }
+            else if (disadvantage.Name == "Чувство долга")
+            {
+                if (disadvantage.Level == 0)
+                {
+                    disadvantage.Level += 1;
+                    player.Points += 2;
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{disadvantage.Name} получена");
+                }
+                else if (disadvantage.Level == 1)
+                {
+                    disadvantage.Level += 1;
+                    player.Points += 3;
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{disadvantage.Name} получена");
+                }
+                else if (disadvantage.Level < 5)
+                {
+                    disadvantage.Level += 1;
+                    player.Points += 5;
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{disadvantage.Name} получена");
+                }
+                else
+                {
+                    await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{disadvantage.Name} максимального уровня");
+                }
+            }
+            else if (disadvantage.Level < disadvantage.MaxLevel)
+            {
+                disadvantage.Level += 1;
+                player.Points += disadvantage.Price;
+                await botClient.SendTextMessageAsync(chatId: message.From.Id, text: $"{disadvantage.Name} получена");
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(chatId: message.From.Id, text: "Достигнут максимальный уровень");
+            }
+
+            if (disadvantage != null)
+            {
+                disadvantageRepository.Update(disadvantage);
+                playerRepository.Update(player);
+            }
+        }
+
+
 
         public static async Task SendAllAdvantages(ITelegramBotClient botClient, long messageId)
         {

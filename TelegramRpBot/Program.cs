@@ -13,7 +13,7 @@ namespace TelegramRpBot
 {
     class Program
     {
-        private static string Token { get; set; } = "";
+        private static string Token { get; set; } = "1765353729:AAEMjwPK9tBy0pDUSl9HBwZirM9JYtzFPbo";
         static async Task Main(string[] args)
         {
             var builder = new ConfigurationBuilder();

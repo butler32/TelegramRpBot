@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace TelegramRpBot.Entites
 {
-    public class Inventory
+    public class Ability
     {
         public int Id { get; set; }
         public long PlayerId { get; set; }
-        public string Weapons { get; set; }
-        public string Armor { get; set; }
-        public string Potions { get; set; }
-        public string Accessory { get; set; }
+        public string Name { get; set; }
+        public string Stat { get; set; }
+        public string Difficulty { get; set; }
+        public int Level { get; set; }
+        public bool Default { get; set; }
+
     }
 }

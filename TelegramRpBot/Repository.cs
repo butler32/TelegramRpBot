@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using TelegramRpBot.Interfaces;
 
 namespace TelegramRpBot
 {
@@ -13,7 +14,6 @@ namespace TelegramRpBot
 
         public Repository()
         {
-
             //this.context = context;
             var optionsBuilder = new DbContextOptionsBuilder<BotDbContext>();
             var options = optionsBuilder
@@ -59,6 +59,26 @@ namespace TelegramRpBot
         public IList<T> List()
         {
             return context.Set<T>().AsNoTracking().ToList();
+        }
+
+        public T Get(ISpecification<T> specification)
+        {
+            return ApplySpecification(context.Set<T>(), specification).FirstOrDefault();
+        }
+
+        private IQueryable<T> ApplySpecification(IQueryable<T> source, ISpecification<T> specification)
+        {
+            var result = specification.Apply(source);
+
+            if (specification.Includes != null)
+            {
+                foreach (var include in specification.Includes)
+                {
+                    result = result.Include(include);
+                }
+            }
+
+            return result.AsNoTracking();
         }
     }
 }

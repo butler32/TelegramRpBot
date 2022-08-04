@@ -12,7 +12,7 @@ namespace TelegramRpBot.Entites
         public string Name { get; set; }
         public int Sp { get; set; }
         public int Defence { get; set; }
-        public int DefenceType { get; set; }
+        public string DefenceType { get; set; }
         public string Attack { get; set; }
     }
 }

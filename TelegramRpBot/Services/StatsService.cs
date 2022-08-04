@@ -158,5 +158,10 @@ namespace TelegramRpBot.Services
             }
             return player;
         }
+
+        public static async Task BuySalt(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            await botClient.SendTextMessageAsync(chatId: callbackQuery.Message.Chat.Id, text: "Зачем тебе 1 ед. соли?");
+        }
     }
 }

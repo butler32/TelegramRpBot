@@ -62,6 +62,10 @@ namespace TelegramRpBot
             },
             new[]
             {
+                InlineKeyboardButton.WithCallbackData("Купить соль - все очки", "playerCreationStatsBuySalt")
+            },
+            new[]
+            {
                 InlineKeyboardButton.WithCallbackData("Вернуться", "playerCreationStatsBackToMenu")
             }
         });
