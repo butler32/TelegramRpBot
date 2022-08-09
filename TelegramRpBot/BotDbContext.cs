@@ -12,7 +12,6 @@ namespace TelegramRpBot
     public class BotDbContext : DbContext
     {
         public DbSet<Player> Players { get; set; }
-        public DbSet<Accessory> Accessoriess { get; set; }
         public DbSet<Active> Actives { get; set; }
         public DbSet<Armor> Armors { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
@@ -32,7 +31,6 @@ namespace TelegramRpBot
         {
             new MonsterConfiguration().Configure(modelBuilder.Entity<Monster>());
             new PlayerConfiguration().Configure(modelBuilder.Entity<Player>());
-            new AccessoryConfiguration().Configure(modelBuilder.Entity<Accessory>());
             new ActiveConfiguration().Configure(modelBuilder.Entity<Active>());
             new ArmorConfiguration().Configure(modelBuilder.Entity<Armor>());
             new InventoryConfiguration().Configure(modelBuilder.Entity<Inventory>());

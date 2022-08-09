@@ -22,7 +22,6 @@ namespace TelegramRpBot
     public class Handlers
     {
         static Repository<Player> playerRepository = new Repository<Player>();
-        static Repository<Accessory> accessoriesRepository = new Repository<Accessory>();
         static Repository<Active> activeRepository = new Repository<Active>();
         static Repository<Armor> armorRepository = new Repository<Armor>();
         static Repository<Inventory> inventoryRepository = new Repository<Inventory>();
@@ -201,6 +200,24 @@ namespace TelegramRpBot
                                 case PlayerInput.Mob:
                                     {
                                         await MobService.AddMob(botClient, message);
+                                        break;
+                                    }
+
+                                case PlayerInput.ActiveLeft:
+                                    {
+                                        await ItemService.ChangeLeftHand(botClient, message);
+                                        break;
+                                    }
+
+                                case PlayerInput.ActiveRight:
+                                    {
+                                        await ItemService.ChangeRightHand(botClient, message);
+                                        break;
+                                    }
+
+                                case PlayerInput.ActiveArmor:
+                                    {
+                                        await ItemService.ChangeArmor(botClient, message);
                                         break;
                                     }
                             }

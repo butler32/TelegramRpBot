@@ -11,6 +11,5 @@ namespace TelegramRpBot.Entites
         public int Id { get; set; }
         public string Name { get; set; }
         public int Healthpoints { get; set; }
-        public int Fatiguepoints { get; set; }
     }
 }

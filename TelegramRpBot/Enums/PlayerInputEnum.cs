@@ -13,5 +13,8 @@
         Mob = 8,
         Armor = 9,
         Weapon = 10,
+        ActiveLeft = 11,
+        ActiveRight = 12,
+        ActiveArmor = 13,
     }
 }
