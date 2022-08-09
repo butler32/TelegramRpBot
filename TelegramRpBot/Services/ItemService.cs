@@ -14,22 +14,7 @@ namespace TelegramRpBot.Services
         static Repository<Player> playerRepository = new Repository<Player>();
         static Repository<Item> itemRepository = new Repository<Item>();
         static Repository<Inventory> inventoryRepository = new Repository<Inventory>();
-        static Repository<Active> activeRepository = new Repository<Active>();
-        static Repository<Accessory> accessoryRepository = new Repository<Accessory>();
 
-        public static async Task ChangeActiveSlot(ITelegramBotClient botClient, Message message)
-        {
 
-        }
-
-        public static async Task CreateAccessory(ITelegramBotClient botClient, Message message)
-        {
-
-        }
-
-        public static async Task AddAccessory(ITelegramBotClient botClient, Message message)
-        {
-
-        }
     }
 }

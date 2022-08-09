@@ -22,12 +22,9 @@ namespace TelegramRpBot
     public class Handlers
     {
         static Repository<Player> playerRepository = new Repository<Player>();
-        static Repository<Accessory> accessoriesRepository = new Repository<Accessory>();
-        static Repository<Active> activeRepository = new Repository<Active>();
         static Repository<Armor> armorRepository = new Repository<Armor>();
         static Repository<Inventory> inventoryRepository = new Repository<Inventory>();
         static Repository<Item> itemRepository = new Repository<Item>();
-        static Repository<Potion> potionRepository = new Repository<Potion>();
         static Repository<Weapon> weaponRepository = new Repository<Weapon>();
         static Repository<Monster> monsterRepository = new Repository<Monster>();
         static Repository<Advantage> advantageRepsitory = new Repository<Advantage>();
@@ -84,14 +81,6 @@ namespace TelegramRpBot
 
                 switch (messageSplit[0].ToLower())
                 {
-                    case "/addmob":
-                        {
-                            player.InputPlayer = (int)PlayerInput.Mob;
-                            playerRepository.Update(player);
-                            await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Напишите через пробел имя, сп, защиту, тип защиты, атаку");
-                            break;
-                        }
-
                     case "получить":
                         {
                             await ParseService.AdvantageParse(botClient, message);

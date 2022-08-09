@@ -15,7 +15,6 @@ namespace TelegramRpBot.Services
         static Repository<Player> playerRepository = new Repository<Player>();
         static Repository<Advantage> advantageRepository = new Repository<Advantage>();
         static Repository<Disadvantage> disadvantageRepository = new Repository<Disadvantage>();
-        static Repository<Active> activeRepository = new Repository<Active>();
         static Repository<Inventory> inventoryRepository = new Repository<Inventory>();
         static Repository<Ability> abilityReposiroty = new Repository<Ability>();
 
@@ -251,11 +250,6 @@ namespace TelegramRpBot.Services
             });
 
             inventoryRepository.Add(new Inventory
-            {
-                PlayerId = userId,
-            });
-
-            activeRepository.Add(new Active
             {
                 PlayerId = userId,
             });
